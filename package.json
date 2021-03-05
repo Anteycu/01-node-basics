@@ -1,21 +1,13 @@
 {
-  "name": "nodejs-basics",
-  "type":"commonjs",
+  "name": "02express",
+  "type": "commonjs",
   "version": "1.0.0",
-  "dependencies": {
-    "gh-pages": "^3.1.0",
-    "yargs": "^16.1.1"
-  },
-  "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
-  },
-  "devDependencies": {
-    "json-server": "^0.16.1",
-    "nodemon": "^2.0.6"
-  },
   "description": "",
   "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Anteycu/node.git"
@@ -25,5 +17,16 @@
   "bugs": {
     "url": "https://github.com/Anteycu/node/issues"
   },
-  "homepage": "https://github.com/Anteycu/node#readme"
+  "homepage": "https://github.com/Anteycu/node#readme",
+  "dependencies": {
+    "axios": "^0.21.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "joi": "^17.4.0",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.6"
+  }
 }
