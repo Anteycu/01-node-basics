@@ -4,6 +4,10 @@ const {
 const User = require("./User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const dotenv = require('dotenv');
+const gravatar = require('gravatar');
+
+dotenv.config();
 
 async function getUsers(req, res) {
     // const currentUser = req.user;
@@ -18,12 +22,15 @@ async function createUser(req, res) {
         if (sameUser) {
             return res.status(409).send('email in use')
         }
+        
+        const avatarURL = gravatar.url('emerleite@gmail.com', {s: '100', r: 'x', d: 'retro'}, false);
         const hashedPassword = await bcrypt.hash(password, 14);
         const createdUser = await User.create({
             email,
             password: hashedPassword,
+            avatarURL,
         });
-        res.status(201).json({ subscription: createdUser.subscription, email: createdUser.email, })
+        res.status(201).json({ subscription: createdUser.subscription, email: createdUser.email, avatarURL })
     } catch (error) {
         res.status(400).send(error);
     }
@@ -96,10 +103,22 @@ next();
     }
 }
 
+async function avatar(req, res) {
+
+    const { user } = req;
+    const { file } = req;
+
+    const imageURL = `http://localhost:8080/images/${file.filename}`;
+    const updatedImage = await User.findByIdAndUpdate(user._id, { avatarURL: imageURL, }, { new: true });
+    return res.status(200).send({ avatarURL: updatedImage.avatarURL })
+}
+
+
 module.exports = {
     getUsers,
     createUser,
     login,
     logout,
-    authorize
+    authorize,
+    avatar,
 };
