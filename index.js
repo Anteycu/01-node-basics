@@ -1,9 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose")
-// const { MongoClient } = require("mongodb")
 const dotenv = require("dotenv")
-const userRouter = require("./contact/contact.routes")
+const contactRouter = require("./contact/contact.routes");
+const userRouter = require("./user/user.routes");
 
 dotenv.config();
 
@@ -28,7 +28,8 @@ function connectMiddlewares(app) {
 }
 
 function connectRoutes(app) {
-    app.use('/api/contacts', userRouter)
+    app.use('/api/contacts', contactRouter);
+    app.use("/api/users", userRouter);
 }
 
 async function connectToDb() {

@@ -1,11 +1,8 @@
-// const fs = require("fs");
-// const path = require("path");
+
 const mongoose = require("mongoose");
-// const { string } = require("joi");
 
 const { Schema } = mongoose;
-
-// const contactsPath = path.join(__dirname, "./db/contacts.json");
+const { SchemaTypes } = mongoose;
 
 const ContactSchema = new Schema({
   name: {
@@ -22,7 +19,11 @@ const ContactSchema = new Schema({
     type: String,
     required: true,
   },
-
+  owner: [{
+      type: SchemaTypes.ObjectId,
+      ref: 'User',
+  },
+]
 })
 
 const Contact = mongoose.model("Contact", ContactSchema);

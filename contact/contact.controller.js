@@ -2,9 +2,19 @@ const {
     Types: { ObjectId },
 } = require("mongoose")
 const Contact = require("./Contact");
+const User = require("../user/User");
 
 async function getContacts(req, res) {
-    const contacts = await Contact.find();
+    const currentUser = req.user;
+    console.log(currentUser)
+    const contacts = await Contact.aggregate([{
+        $lookup: {
+            from: "users",
+            localField: "owner",
+            foreignField: "_id",
+            as: "owner",
+        }
+    }]);
     res.json({contacts})
 }
     
@@ -12,7 +22,7 @@ async function getById(req, res) {
          const {
              params: { id },
          } = req;
-   const contact = await Contact.findById(id);
+    const contact = await (await Contact.findById(id)).populate("owner");
         if (!contact) {
         return res.status(404).send({ "message": "Not found" })
     }
@@ -50,6 +60,29 @@ async function deleteContact(req, res) {
         res.json(deletedContact)
         
 }
+
+async function createContactOwner(req, res) {
+    const {
+             params: { id },
+    } = req;
+
+    const user = await User.create(req.body);
+
+    const contact = await Contact.findByIdAndUpdate(
+        id,
+        {
+        $push: {
+            owner: user._id,
+        },
+    },
+    {
+        new: true
+    });
+        if (!contact) {
+            return res.status(404).send("Contact not found")
+        }
+        res.json(contact)
+}
     
 function validateId(req, res, next) {
     const {
@@ -67,5 +100,6 @@ module.exports = {
     createContact,
     updateContact,
     deleteContact,
-    validateId
+    validateId,
+    createContactOwner
 };
