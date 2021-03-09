@@ -6,6 +6,27 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const dotenv = require('dotenv');
 const gravatar = require('gravatar');
+const sgMail = require("@sendgrid/mail");
+const { v4: uuidv4 } = require('uuid');
+
+dotenv.config();
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+const msg = {
+  to: "Anteycu@gmail.com",
+  from: "Anteycu@gmail.com",
+  subject: "Test Verification Anteycu App",
+  text: "Verify link:",
+  html: "<strong>http://localhost:8080/api/users/auth/verify/:verificationToken</strong>",
+};
+
+async function main(verifyToken) {
+    msg.html = `<strong>http://localhost:8080/api/users/auth/verify/${verifyToken}</strong>`
+  const [response] = await sgMail.send(msg);
+
+  console.log(response);
+}
 
 dotenv.config();
 
@@ -25,12 +46,15 @@ async function createUser(req, res) {
         
         const avatarURL = gravatar.url('emerleite@gmail.com', {s: '100', r: 'x', d: 'retro'}, false);
         const hashedPassword = await bcrypt.hash(password, 14);
+        const verifyToken = uuidv4();
         const createdUser = await User.create({
             email,
             password: hashedPassword,
             avatarURL,
+            verificationToken: verifyToken,
         });
-        res.status(201).json({ subscription: createdUser.subscription, email: createdUser.email, avatarURL })
+        main(verifyToken)
+        res.status(201).json({ subscription: createdUser.subscription, email: createdUser.email, avatarURL, verificationToken: createdUser.verificationToken })
     } catch (error) {
         res.status(400).send(error);
     }
@@ -113,6 +137,18 @@ async function avatar(req, res) {
     return res.status(200).send({ avatarURL: updatedImage.avatarURL })
 }
 
+async function getVerify(req, res) {
+    const {
+             params: { verificationToken },
+    } = req;
+    // const { _id } = req.user
+    const user = await User.findOne({ verificationToken });
+        if (!user) {
+            return res.status(404).send("User not found");
+    }
+    const updatedVerify = await User.findByIdAndUpdate(user._id, { verificationToken: "null", }, { new: true });
+    res.json(updatedVerify);
+}
 
 module.exports = {
     getUsers,
@@ -121,4 +157,5 @@ module.exports = {
     logout,
     authorize,
     avatar,
+    getVerify
 };

@@ -22,6 +22,7 @@ router.post("/auth/register", UserController.createUser);
 router.post("/auth/login", UserController.login);
 router.post("/auth/logout", UserController.authorize, UserController.logout);
 router.get("/current", UserController.authorize, UserController.getUsers);
+router.get("/auth/verify/:verificationToken", UserController.getVerify);
 router.patch("/avatars", UserController.authorize, upload.single("avatarURL"), UserController.avatar);
 
 module.exports = router;
